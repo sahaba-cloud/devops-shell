@@ -4,26 +4,27 @@ set -o nounset
 set -o pipefail
 # set -o xtrace
 
-##########################
-# CONFIGURATION PRIORITY
-# 1. ENV
-# 2. APP_ROOT/.sahaba.yml
-# 3. SCRIPT_ROOT/config.sh
-##########################
-
-SCRIPT_ROOT=$(cd "$(dirname "${BASH_SOURCE}")" && pwd -P)
-source ${SCRIPT_ROOT}/config.sh
+MODULE=project
 
 BUILD_DATE=$(date '+%G-%m-%d')
 BUILD_TIME=$(date '+%H:%M:%S')
 
+SCRIPT_ROOT=$(cd "$(dirname "${BASH_SOURCE}")" && pwd -P)
 APP_ROOT=$(pwd -P)
 APP_CONFIG=${APP_ROOT}/.sahaba.yml
 
+##########################
+# CONFIGURATION PRIORITY
+# 1. APP_ROOT/.sahaba.yml
+# 2. ENV
+# 3. SCRIPT_ROOT/config.sh
+##########################
+
+source ${SCRIPT_ROOT}/config.sh
+
 if [ -s "${APP_CONFIG}" ]; then
-    APP_VERSION=$(shyaml get-value version 0.0.1 < $APP_CONFIG)
-else
-    APP_VERSION=0.0.1
+    APP_VERSION=$(shyaml get-value version ${APP_VERSION} < $APP_CONFIG)
+    APP_LANGUAGE=$(shyaml get-value language ${APP_LANGUAGE} < $APP_CONFIG)
 fi
 
 # /go/src/github.com/ hg2c /swain-go
@@ -45,21 +46,24 @@ GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 ##########################
 # COMPUTE VERSION
 ##########################
-[[ -z $(git status -s) ]] || APP_VERSION=${APP_VERSION}-dev.
+[[ -z $(git status -s) ]] || APP_VERSION=${APP_VERSION}-dev
 APP_VERSION=${APP_VERSION}-${GIT_COMMIT}
+
 APP_IMAGE=${APP_AUTHOR}-${APP_NAME}:${APP_VERSION}
 
 ##########################
 # LANGUAGE SPECIAL CONFIG
 ##########################
 INFER_LANGUAGE=golang
-APP_LANGUAGE=$INFER_LANGUAGE
-if [ -s "./scripts/${APP_LANGUAGE}.sh" ]; then source ./scripts/${APP_LANGUAGE}.sh; fi
+APP_LANGUAGE=${APP_LANGUAGE:-INFER_LANGUAGE}
+if [ -s "${SCRIPT_ROOT}/${APP_LANGUAGE}.sh" ]; then source ${SCRIPT_ROOT}/${APP_LANGUAGE}.sh; fi
 
-# TODO dry run
 run() {
-    echo RUN: $@ && eval $@;
-    echo DRYRUN: $@;
+    if [ "$DRYRUN" == "true" ]; then
+        echo DRYRUN: $@;
+    else
+        echo RUN: $@ && eval $@;
+    fi
 }
 
 show() {
@@ -78,3 +82,8 @@ show GIT_TAG
 show GIT_BRANCH
 
 echo ------------
+
+for COMMAND in "$@"
+do
+    $COMMAND
+done
