@@ -1,0 +1,4 @@
+* INSTALL
+#+BEGIN_SRC shell
+curl https://raw.githubusercontent.com/sahaba-cloud/devops-shell/master/install.sh | sudo bash
+#+END_SRC
