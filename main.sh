@@ -9,7 +9,12 @@ MODULE=project
 BUILD_DATE=$(date '+%G-%m-%d')
 BUILD_TIME=$(date '+%H:%M:%S')
 
-SCRIPT_ROOT=$(cd "$(dirname "${BASH_SOURCE}")" && pwd -P)
+if [ -d "/opt/sahaba/devops-shell" ]; then
+    SCRIPT_ROOT=/opt/sahaba/devops-shell
+else
+    SCRIPT_ROOT=$(cd "$(dirname "${BASH_SOURCE}")" && pwd -P)
+fi
+
 APP_ROOT=$(pwd -P)
 APP_CONFIG=${APP_ROOT}/.sahaba.yml
 
@@ -25,6 +30,8 @@ source ${SCRIPT_ROOT}/config.sh
 if [ -s "${APP_CONFIG}" ]; then
     APP_VERSION=$(shyaml get-value version ${APP_VERSION} < $APP_CONFIG)
     APP_LANGUAGE=$(shyaml get-value language ${APP_LANGUAGE} < $APP_CONFIG)
+
+    DOCKER_BUILD_IMAGE=$(shyaml get-value build.image alpine:latest < $APP_CONFIG)
 fi
 
 # /go/src/github.com/ hg2c /swain-go

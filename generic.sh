@@ -10,5 +10,3 @@ docker:push() {
 helm:upgrade() {
     run /luo/w/huwo/hw-helm-repo/main.sh ${APP_AUTHOR}-${APP_NAME} upgrade ${APP_VERSION}
 }
-
-echo 123
