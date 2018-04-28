@@ -54,8 +54,6 @@ APP_IMAGE=${APP_AUTHOR}-${APP_NAME}:${APP_VERSION}
 ##########################
 # LANGUAGE SPECIAL CONFIG
 ##########################
-INFER_LANGUAGE=golang
-APP_LANGUAGE=${APP_LANGUAGE:-INFER_LANGUAGE}
 if [ -s "${SCRIPT_ROOT}/${APP_LANGUAGE}.sh" ]; then source ${SCRIPT_ROOT}/${APP_LANGUAGE}.sh; fi
 
 run() {
