@@ -59,7 +59,7 @@ APP_LANGUAGE=${APP_LANGUAGE:-INFER_LANGUAGE}
 if [ -s "${SCRIPT_ROOT}/${APP_LANGUAGE}.sh" ]; then source ${SCRIPT_ROOT}/${APP_LANGUAGE}.sh; fi
 
 run() {
-    if [ "$DRYRUN" == "true" ]; then
+    if [ "${DRYRUN-}" == "true" ]; then
         echo DRYRUN: $@;
     else
         echo RUN: $@ && eval $@;
